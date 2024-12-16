@@ -8,7 +8,7 @@ export class Boid implements IBoid {
 
 	private acceleration: Point = new Point(0, 0);
 
-	constructor(initialPosition: Point, maxSpeed = 2) {
+	constructor(initialPosition: Point, maxSpeed = 5) {
 		this.posi = initialPosition;
 		this.velocity = new Point(Math.random() * 2 - 1, Math.random() * 2 - 1);
 		this.maxSpeed = maxSpeed;

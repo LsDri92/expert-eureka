@@ -105,8 +105,7 @@
 		{
 			"name": "music",
 			"assets": {
-				"music": "./music/musical.mp3",
-				"haunting": "./music/hauntingloli.mp3"
+				"music": "./music/musical.mp3"
 			}
 		},
 		{
@@ -116,29 +115,20 @@
 				"big_background": "./img/big_placeholder/bg_game.png",
 				"mask_demo": "./img/big_placeholder/mask_demo@0.5x.png", // @0.5x means 50% of the original size, pixi will internally upscale and you will never know!
 				"bar": "./img/bar.png",
-				"barBG": "./img/bgBar.png",
-				"LDTK_IMG": "./img/TopDown_by_deepnight.png"
+				"barBG": "./img/bgBar.png"
+				// "forest_back": "./img/engine/forest_back.png",
+				// "forest_long": "./img/engine/forest_long.png",
+				// "forest_mid": "./img/engine/forest_mid.png",
+				// "forest_moon": "./img/engine/forest_moon.png",
+				// "forest_mountain": "./img/engine/forest_mountain.png",
+				// "forest_short": "./img/engine/forest_short.png",
+				// "forest_sky": "./img/engine/forest_sky.png"
 			}
 		},
 		{
 			"name": "package-2",
 			"assets": {
-				"loli": "./models/cheers1.png",
-				"pocho": "./models/cheers2.png",
 				"package 2 background": "./img/big_placeholder/background-2.jpg"
-			}
-		},
-		{
-			"name": "storagescene",
-			"assets": {
-				"sword": "./img/player1.png",
-				"shield": "./img/player2.png"
-			}
-		},
-		{
-			"name": "topdown",
-			"assets": {
-				"package 1 background": "./img/image.jpg"
 			}
 		},
 		{
@@ -149,13 +139,26 @@
 				"gridTexture": "./img/big_placeholder/bg_game.png"
 			}
 		},
-		{
-			"name": "engine",
-			"assets": {
-				"blackboard2": "./img/engine/blackboard.png",
-				"blackboard": "./img/engine/blackboard2.png"
-			}
-		},
+		// {
+		// 	"name": "engine",
+		// 	"assets": {
+		// 		"enemyz": "./img/engine/enemy-z.png",
+		// 		"forest_back": "./img/engine/forest_back.png",
+		// 		"forest_long": "./img/engine/forest_long.png",
+		// 		"forest_mid": "./img/engine/forest_mid.png",
+		// 		"forest_moon": "./img/engine/forest_moon.png",
+		// 		"forest_mountain": "./img/engine/forest_mountain.png",
+		// 		"forest_short": "./img/engine/forest_short.png",
+		// 		"forest_sky": "./img/engine/forest_sky.png",
+		// 		"spaceship0": "./img/engine/spaceship/0.png",
+		// 		"spaceship1": "./img/engine/spaceship/1.png", 
+		// 		"spaceship2": "./img/engine/spaceship/2.png", 
+		// 		"spaceship3": "./img/engine/spaceship/3.png", 
+		// 		"spaceship4": "./img/engine/spaceship/4.png", 
+		// 		"spaceship5": "./img/engine/spaceship/5.png", 
+		// 		"spaceship6": "./img/engine/spaceship/6.png" 
+		// 	}
+		// },
 		{
 			"name": "joystick",
 			"assets": {
@@ -165,5 +168,6 @@
 				"collectable": "./img/joystick/Collectable.png"
 			}
 		}
+		
 	]
 }

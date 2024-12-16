@@ -1,29 +1,15 @@
 import { Point } from "@pixi/core";
 
-/**
- * Representa un boid (entidad de simulación de comportamiento de enjambre).
- */
 export interface IBoid {
-	/** Posición actual del boid en el espacio. */
 	posi: Point;
 
-	/** Velocidad actual del boid. */
 	velocity: Point;
 
-	/** Velocidad máxima permitida para el boid. */
 	maxSpeed: number;
 
-	/** Método para actualizar el estado del boid según el delta de tiempo. */
 	update(delta: number): void;
 }
 
-/**
- * Limita un vector a una magnitud máxima.
- *
- * @param vector - El vector a limitar.
- * @param max - La magnitud máxima permitida.
- * @returns Un nuevo vector con la magnitud ajustada.
- */
 export function limitVector(vector: Point, max: number): Point {
 	const length = Math.sqrt(vector.x ** 2 + vector.y ** 2);
 	if (length > max) {
@@ -32,13 +18,6 @@ export function limitVector(vector: Point, max: number): Point {
 	return vector;
 }
 
-/**
- * Genera una fuerza para que un boid persiga un objetivo.
- *
- * @param boid - El boid que ejecutará el comportamiento.
- * @param target - El punto objetivo a alcanzar.
- * @returns Un vector de fuerza para mover el boid hacia el objetivo.
- */
 export function seek(boid: IBoid, target: Point): Point {
 	const desired = new Point(target.x - boid.posi.x, target.y - boid.posi.y);
 	const desiredNormalized = limitVector(desired, boid.maxSpeed);
@@ -46,13 +25,6 @@ export function seek(boid: IBoid, target: Point): Point {
 	return limitVector(steering, boid.maxSpeed);
 }
 
-/**
- * Genera una fuerza para que un boid se aleje de una amenaza.
- *
- * @param boid - El boid que ejecutará el comportamiento.
- * @param threat - El punto que representa la amenaza.
- * @returns Un vector de fuerza para alejar al boid de la amenaza.
- */
 export function flee(boid: IBoid, threat: Point): Point {
 	const desired = new Point(boid.posi.x - threat.x, boid.posi.y - threat.y);
 	const desiredNormalized = limitVector(desired, boid.maxSpeed);
@@ -60,14 +32,6 @@ export function flee(boid: IBoid, threat: Point): Point {
 	return limitVector(steering, boid.maxSpeed);
 }
 
-/**
- * Genera una fuerza para que un boid llegue a un objetivo, desacelerando al acercarse.
- *
- * @param boid - El boid que ejecutará el comportamiento.
- * @param target - El punto objetivo a alcanzar.
- * @param slowingRadius - El radio en el que comienza a desacelerar.
- * @returns Un vector de fuerza para mover el boid hacia el objetivo.
- */
 export function arrive(boid: IBoid, target: Point, slowingRadius: number): Point {
 	const desired = new Point(target.x - boid.posi.x, target.y - boid.posi.y);
 	const distance = Math.sqrt(desired.x ** 2 + desired.y ** 2);
@@ -82,50 +46,54 @@ export function arrive(boid: IBoid, target: Point, slowingRadius: number): Point
 	return limitVector(steering, boid.maxSpeed);
 }
 
-/**
- * Genera una fuerza para que un boid deambule de forma aleatoria.
- *
- * @param boid - El boid que ejecutará el comportamiento.
- * @param wanderRadius - El radio de exploración aleatoria.
- * @param wanderDistance - La distancia desde el boid donde ocurre el deambular.
- * @param wanderJitter - El rango de variación aleatoria.
- * @returns Un vector de fuerza para generar el deambular.
- */
-export function wander(boid: IBoid, wanderRadius: number, wanderDistance: number, wanderJitter: number): Point {
+export function wander(boid: IBoid, wanderRadius: number, wanderDistance: number, wanderJitter: number, screenWidth: number, screenHeight: number): Point {
 	if (!boid.velocity) {
-		boid.velocity = new Point(0, 0); // Asignar velocidad inicial si no está definida
+		boid.velocity = new Point(0, 0);
 	}
 
+	// Movimiento normal de wander
 	const circleCenter = limitVector(boid.velocity, wanderDistance);
 	const displacement = new Point((Math.random() - 0.5) * wanderJitter, (Math.random() - 0.5) * wanderJitter);
 
 	displacement.x *= wanderRadius;
 	displacement.y *= wanderRadius;
 
-	const wanderForce = new Point(circleCenter.x + displacement.x, circleCenter.y + displacement.y);
-	return limitVector(wanderForce, boid.maxSpeed);
+	let wanderForce = new Point(circleCenter.x + displacement.x, circleCenter.y + displacement.y);
+	wanderForce = limitVector(wanderForce, boid.maxSpeed);
+
+	// Limitar al tamaño de la pantalla
+	const futurePosition = new Point(boid.posi.x + wanderForce.x, boid.posi.y + wanderForce.y);
+
+	if (futurePosition.x < 0 || futurePosition.x > screenWidth) {
+		wanderForce.x = -wanderForce.x; // Invierte la dirección horizontal si está fuera de los límites
+	}
+
+	if (futurePosition.y < 0 || futurePosition.y > screenHeight) {
+		wanderForce.y = -wanderForce.y; // Invierte la dirección vertical si está fuera de los límites
+	}
+
+	return wanderForce;
 }
 
-/**
- * Genera una fuerza para que un boid siga a un líder mientras evita colisiones y mantiene separación con otros boids.
- *
- * @param boid - El boid que ejecutará el comportamiento.
- * @param leader - El boid líder a seguir.
- * @param followDistance - La distancia deseada para seguir al líder.
- * @param separationDistance - La distancia mínima de separación entre boids.
- * @param allBoids - Lista de todos los boids en la simulación.
- * @returns Un vector de fuerza para seguir al líder.
- */
-export function leaderFollow(boid: IBoid, leader: IBoid, followDistance: number, separationDistance: number, allBoids: IBoid[]): Point {
-	const leaderVelocityNormalized =
-		leader.velocity.x === 0 && leader.velocity.y === 0
-			? new Point(1, 0) 
-			: limitVector(leader.velocity, 1);
-	const followTarget = new Point(leader.posi.x - leaderVelocityNormalized.x * followDistance, leader.posi.y - leaderVelocityNormalized.y * followDistance);
+export function leaderFollow(boid: IBoid, leader: IBoid, followDistance: number, separationDistance: number, allBoids: IBoid[], alwaysBehind: boolean = false): Point {
+	// Normalizar la velocidad del líder
+	const leaderVelocityNormalized = leader.velocity.x === 0 && leader.velocity.y === 0 ? new Point(1, 0) : limitVector(leader.velocity, 1);
 
+	// Calcular la posición objetivo para seguir al líder
+	let followTarget: Point;
+	if (alwaysBehind) {
+		// Mantener siempre detrás del líder
+		followTarget = new Point(leader.posi.x - leaderVelocityNormalized.x * followDistance, leader.posi.y - leaderVelocityNormalized.y * followDistance);
+	} else {
+		// Posición relativa por defecto
+		followTarget = new Point(leader.posi.x - leaderVelocityNormalized.x * followDistance, leader.posi.y - leaderVelocityNormalized.y * followDistance);
+	}
+
+	// Fuerzas de comportamiento
 	const seekForce = seek(boid, followTarget);
 	const fleeForce = flee(boid, leader.posi);
 
+	// Separación entre boids
 	let separationForce = new Point(0, 0);
 	for (const other of allBoids) {
 		if (other !== boid) {
@@ -143,6 +111,38 @@ export function leaderFollow(boid: IBoid, leader: IBoid, followDistance: number,
 	}
 	separationForce = limitVector(separationForce, boid.maxSpeed);
 
+	// Combinar todas las fuerzas
 	const combinedForce = new Point(seekForce.x * 1.2 + fleeForce.x * 0.5 + separationForce.x * 2, seekForce.y * 1.2 + fleeForce.y * 0.5 + separationForce.y * 2);
+
 	return limitVector(combinedForce, boid.maxSpeed);
+}
+
+export function orbitAndFollowLeader(boids: IBoid[], leader: IBoid, orbitRadius: number, angularSpeed: number, elapsedTime: number): void {
+	const numBoids = boids.length;
+
+	// Distribuir y actualizar los boids
+	boids.forEach((boid, index) => {
+		// Ángulo base y rotación dinámica
+		const angleOffset = (2 * Math.PI * index) / numBoids;
+		const currentAngle = angleOffset + angularSpeed * elapsedTime;
+
+		// Posición objetivo en la circunferencia
+		const targetX = leader.posi.x + Math.cos(currentAngle) * orbitRadius;
+		const targetY = leader.posi.y + Math.sin(currentAngle) * orbitRadius;
+		const targetPoint = new Point(targetX, targetY);
+
+		// Calcular fuerza seek hacia el objetivo
+		const seekForce = seek(boid, targetPoint);
+
+		// Añadir movimiento del líder para seguirlo
+		boid.velocity.x += seekForce.x + leader.velocity.x * 0.1;
+		boid.velocity.y += seekForce.y + leader.velocity.y * 0.1;
+
+		// Limitar la velocidad del boid a su máximo permitido
+		boid.velocity = limitVector(boid.velocity, boid.maxSpeed);
+
+		// Actualizar la posición del boid
+		boid.posi.x += boid.velocity.x;
+		boid.posi.y += boid.velocity.y;
+	});
 }
