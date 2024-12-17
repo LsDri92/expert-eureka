@@ -41,6 +41,7 @@ forceFocus();
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const Manager = new SceneManager(new PixiRenderer(pixiSettings));
 export const cameraControl = new CameraOrbitControl(pixiSettings.view);
+// export const mousePosition = Manager.sceneRenderer.pixiRenderer.plugins.interaction.mouse.global;
 
 export const isMobile: boolean = DataManager.getValue(JoystickEmits.MOBILE);
 
